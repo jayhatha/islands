@@ -114,8 +114,9 @@ const paintSquares = (squaresToPaint) => {
   for (const square of squaresToPaint) {
     let island = document.getElementById(square.id);
     if (island && !island.style.backgroundColor) {
-    island.style.backgroundColor = square.backgroundColor;
-    island.classList.add('claimed', 'island');
+      window.setTimeout(1000);
+      island.style.backgroundColor = square.backgroundColor;
+      island.classList.add('claimed', 'island');
     }
   }
 };

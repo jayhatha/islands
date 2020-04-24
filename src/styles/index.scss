@@ -48,34 +48,11 @@ button:active {
   width: calc(1.5625%);
   padding-bottom: calc(1.5625%);
   position: relative;
+  background-color: transparent;
 }
 
-.dropdown {
-  transition: all 0.2s ease-in-out;
-  overflow: hidden;
-  margin: 30px;
-  background: rgb(248, 248, 248);
-  border: solid 1px rgb(222, 222, 222);
-  width: 320px;
-  cursor: pointer;
-}
-.icon {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 25px 0 10px;
-}
-.menu {
-  height: 228px;
-}
-.menu li {
-  font-size: 24px;
-  text-transform: uppercase;
-  padding: 14px 10px;
-  border-top: solid 1px rgb(202, 202, 202);
-}
-.dropdown.closed .menu {
-  height: 0px;
-}
-.dropdown.closed .icon span {
-  transform: rotate(180deg);
+.item .claimed {
+  -webkit-transition: background-color 1000ms linear;
+  -ms-transition: background-color 1000ms linear;
+  transition: background-color 1000ms linear;
 }
