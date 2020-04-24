@@ -6,13 +6,76 @@ body {
 }
 
 #container {
+  background-color: lightpink;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
+  .seed {
+    opacity: 0;
+  }
+}
+#buttonArea {
+  display: flex;
+  margin: 20px auto;
+  justify-content: center;
+}
+button {
+  display: inline-block;
+  border: none;
+  padding: 1rem 2rem;
+  margin: 0;
+  text-decoration: none;
+  background: #0069ed;
+  color: #ffffff;
+  font-family: sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: center;
+  transition: background 250ms ease-in-out, transform 150ms ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
+button:hover,
+button:focus {
+  background: #0053ba;
+}
+
+button:active {
+  transform: scale(0.99);
+}
 .item {
   width: calc(1.5625%);
   padding-bottom: calc(1.5625%);
   position: relative;
+}
+
+.dropdown {
+  transition: all 0.2s ease-in-out;
+  overflow: hidden;
+  margin: 30px;
+  background: rgb(248, 248, 248);
+  border: solid 1px rgb(222, 222, 222);
+  width: 320px;
+  cursor: pointer;
+}
+.icon {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 25px 0 10px;
+}
+.menu {
+  height: 228px;
+}
+.menu li {
+  font-size: 24px;
+  text-transform: uppercase;
+  padding: 14px 10px;
+  border-top: solid 1px rgb(202, 202, 202);
+}
+.dropdown.closed .menu {
+  height: 0px;
+}
+.dropdown.closed .icon span {
+  transform: rotate(180deg);
 }
