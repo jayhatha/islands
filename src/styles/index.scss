@@ -4,3 +4,15 @@ body {
   color: $body-color;
   font-family: sans-serif;
 }
+
+#container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.item {
+  width: calc(1.5625%);
+  padding-bottom: calc(1.5625%);
+  position: relative;
+}
