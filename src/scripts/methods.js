@@ -1,11 +1,12 @@
 // import { countBy } from 'lodash';
 
+export const islands = [];
 const randomColor = (colors) =>
   colors[Math.floor(Math.random() * colors.length)];
 const findSeeds = () => {
   const seedNums = [];
-  const islands = document.getElementsByClassName('seed');
-  for (const island of islands) {
+  const seedIslands = document.getElementsByClassName('seed');
+  for (const island of seedIslands) {
     seedNums.push(parseInt(island.id, 10));
   }
   return seedNums;
@@ -45,23 +46,18 @@ export const findAdjacent = (num) => {
   return [num + 1, num - 1, num + 64, num - 64];
 };
 
-const paintAdjacents = (seedNums) => {
-  const nums = [...seedNums];
-  let bgColor;
-  let adjacents;
-  let idx = 0;
-  for (const num of nums) {
-    adjacents = findAdjacent(num);
-    idx += 1;
-
-    bgColor = document.getElementById(num).style.backgroundColor;
+const paintAdjacents = () => {
+  for (let t = 0; t < islands.length; t += 1) {
+    const thisIsland = islands[t];
+    const adjacents = findAdjacent(thisIsland.seed);
     for (const item of adjacents) {
       const island = document.getElementById(item);
-      island.style.backgroundColor = bgColor;
-      island.classList.add('claimed', idx);
+      island.style.backgroundColor = thisIsland.bgColor;
+      island.classList.add('claimed', t);
+      thisIsland.territory.push(item);
     }
-    adjacents = [];
   }
+  console.log(islands);
 };
 const isClaimed = (id) => {
   const el = document.getElementById(id);
@@ -184,6 +180,17 @@ export const randomBreak = (num, cols, container) => {
   // console.log(countBy(colors));
   // console.log(countBy(colors2));
 };
+export const makeGrid = (gridSize, container) => {
+  const newItems = [];
+  for (let i = 0; i < gridSize; i += 1) {
+    newItems.push(document.createElement('div'));
+    newItems[i].classList.add('item');
+    newItems[i].id = i;
+  }
+  for (const el of newItems) {
+    container.appendChild(el);
+  }
+};
 
 export const seedIslands = (config) => {
   const {
@@ -194,26 +201,26 @@ export const seedIslands = (config) => {
     iterations,
     container,
   } = config;
-  const newItems = [];
   const colors = [...palette];
-  const seedNumbers = [];
+  makeGrid(gridSize, container);
+  islands.length = 0;
   for (let s = 0; s < islandCount; s += 1) {
     const seedNum = Math.floor(Math.random() * gridSize);
-    seedNumbers.push(seedNum);
-  }
-  for (let i = 0; i < gridSize; i += 1) {
     const color = randomColor(colors);
-    newItems.push(document.createElement('div'));
-    newItems[i].classList.add('item');
-    newItems[i].id = i;
-    if (seedNumbers.includes(i)) {
-      newItems[i].style.backgroundColor = color;
-      newItems[i].classList.add('claimed', 'seed');
-    }
+    const newIsland = {
+      seed: seedNum,
+      territory: [seedNum],
+      bgColor: color,
+    };
+    islands.push(newIsland);
   }
-  for (const el of newItems) {
-    container.appendChild(el);
+  for (let t = 0; t < islands.length; t += 1) {
+    const thisIsland = islands[t];
+    const paintTarget = document.getElementById(thisIsland.seed);
+    paintTarget.style.backgroundColor = thisIsland.bgColor;
+    paintTarget.classList.add('claimed', 'seed', t);
   }
+
   let x = paintableSquares(findPotentialPaints());
   paintAdjacents(findSeeds());
   for (let i = 0; i < iterations; i += 1) {
