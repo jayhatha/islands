@@ -1,4 +1,10 @@
 {
+  "extends": ["airbnb", "prettier"],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": ["error"],
+    "no-restricted-syntax": "off"
+  },
   "env": {
     "browser": true,
     "node": true
@@ -6,8 +12,5 @@
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "module"
-  },
-  "rules": {
-    "semi": 2
   }
 }
