@@ -1,11 +1,11 @@
 import '../styles/index.scss';
-import { seedIslands } from './methods';
+import { seedIslands, runBenchmarks } from './methods';
 
 // elements
 
 const container = document.getElementById('container');
 const regenButton = document.getElementById('regen');
-
+const benchmarkButton = document.getElementById('benchmark');
 const growthInput = document.getElementById('growthFactor');
 const iterationInput = document.getElementById('iterations');
 const islandCountInput = document.getElementById('islandCount');
@@ -57,19 +57,22 @@ const updatePalette = (e) => {
   config.palette = palettes[e.target.value];
 };
 const regenerateGrid = () => {
+  regenButton.textContent = 'Regenerating ...';
   while (container.firstChild) {
     container.firstChild.remove();
   }
   makeGrid(config);
+  regenButton.textContent = 'Regenerate';
 };
 
 // init
 
 document.addEventListener('DOMContentLoaded', () => {
   regenButton.onclick = () => regenerateGrid();
-  makeGrid(config);
+  benchmarkButton.onclick = () => runBenchmarks(config);
   growthInput.addEventListener('change', updateGrowthValue);
   iterationInput.addEventListener('change', updateIterationValue);
   islandCountInput.addEventListener('change', updateIslandCount);
   paletteSelect.addEventListener('change', updatePalette);
+  makeGrid(config);
 });

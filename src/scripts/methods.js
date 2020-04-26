@@ -1,6 +1,7 @@
 // import { countBy } from 'lodash';
 
-export const islands = [];
+const islands = [];
+const splits = [];
 const randomColor = (colors) =>
   colors[Math.floor(Math.random() * colors.length)];
 const findSeeds = () => {
@@ -47,6 +48,7 @@ export const findAdjacent = (num) => {
 };
 
 const paintAdjacents = () => {
+  const t0 = performance.now();
   for (let t = 0; t < islands.length; t += 1) {
     const thisIsland = islands[t];
     const adjacents = findAdjacent(thisIsland.seed);
@@ -57,66 +59,87 @@ const paintAdjacents = () => {
       thisIsland.territory.push(item);
     }
   }
-  console.log(islands);
+  const t1 = performance.now();
+  splits.push(`paintAdjacents ${t1 - t0}`);
 };
-const isClaimed = (id) => {
-  const el = document.getElementById(id);
-  return el ? el.classList.contains('claimed') : false;
-};
+
+// const isClaimed = (id) => {
+//   const el = document.getElementById(id);
+//   return el ? el.classList.contains('claimed') : false;
+// };
 
 const findPotentialPaints = () => {
+  const t0 = performance.now();
   // get all claimed ids
-  const claimedIds = [];
-  const claimedSquares = document.getElementsByClassName('claimed');
-  for (const island of claimedSquares) {
-    claimedIds.push(parseInt(island.id, 10));
-  }
-  // find their adjacents
   const potentiallyPaintable = [];
-  for (const id of claimedIds) {
-    const sourceIsland = document.getElementById(id);
-    const bgColor = sourceIsland.style.backgroundColor;
-    const adjacents = findAdjacent(id);
-    for (const item of adjacents) {
-      potentiallyPaintable.push({
-        id: item,
-        backgroundColor: bgColor,
-      });
-    }
-  }
-  return potentiallyPaintable;
-};
-
-const paintableSquares = () => {
-  const squaresToPaint = [];
-  const candidates = findPotentialPaints();
-  for (const id of candidates) {
-    let openBorders = 0;
-    const adjacents = findAdjacent(id.id);
-    for (const item of adjacents) {
-      if (!isClaimed(item.id)) {
-        openBorders += 1;
-        if (openBorders > 2) {
-          squaresToPaint.push(id);
-        }
+  for (let i = 0; i < islands.length; i += 1) {
+    const claimedIds = islands[i].territory;
+    for (const id of claimedIds) {
+      const adjacents = findAdjacent(id);
+      for (const item of adjacents) {
+        potentiallyPaintable.push({
+          id: item,
+          backgroundColor: islands[i].bgColor,
+          island: i,
+        });
       }
     }
   }
+  // find their adjacents
+
+  const t1 = performance.now();
+  splits.push(`findPotentialPaints ${t1 - t0}`);
+  return potentiallyPaintable;
+};
+const hasNeighbors = (candidate) => {
+  let neighbors = 0;
+  const adjacents = findAdjacent(candidate.id);
+  for (let i = 0; i < adjacents.length; i += 1) {
+    const el = document.getElementById(adjacents[i]);
+    if (
+      el.classList.contains('claimed') &&
+      !el.classList.contains(candidate.island)
+    ) {
+      neighbors += 1;
+    }
+  }
+  return neighbors;
+};
+
+const decideWhichSquaresToPaint = (potentials) => {
+  const t0 = performance.now();
+  const candidates = [...potentials];
+  const squaresToPaint = [];
+  for (const candidate of candidates) {
+    if (
+      !hasNeighbors(candidate) &&
+      squaresToPaint.indexOf(candidate) === -1
+    ) {
+      squaresToPaint.push(candidate);
+    }
+  }
+
+  const t1 = performance.now();
+  splits.push(`decideWhichSquaresToPaint ${t1 - t0}`);
   return squaresToPaint;
 };
 
 const paintSquares = (squaresToPaint) => {
-  for (const square of squaresToPaint) {
-    const island = document.getElementById(square.id);
-    if (island && !island.style.backgroundColor) {
-      window.setTimeout(1000);
-      island.style.backgroundColor = square.backgroundColor;
-      island.classList.add('claimed', 'island');
+  const t0 = performance.now();
+  for (const target of squaresToPaint) {
+    const newSquare = document.getElementById(target.id);
+    if (newSquare && !newSquare.style.backgroundColor) {
+      newSquare.style.backgroundColor = target.backgroundColor;
+      newSquare.classList.add('claimed', target.island);
+      islands[target.island].territory.push(target.id);
     }
   }
+  const t1 = performance.now();
+  splits.push(`paintSquares ${t1 - t0}`);
 };
 
 const growIsland = (paintable, growthRate) => {
+  const t0 = performance.now();
   const potentialNewTerritory = paintable;
   const theExpanse = [];
   for (let j = 0; j < potentialNewTerritory.length; j += 1) {
@@ -125,6 +148,8 @@ const growIsland = (paintable, growthRate) => {
     }
   }
   paintSquares(theExpanse);
+  const t1 = performance.now();
+  splits.push(`growIsland ${t1 - t0}`);
 };
 
 // const selectIsland = (islandNumber) => {};
@@ -220,11 +245,30 @@ export const seedIslands = (config) => {
     paintTarget.style.backgroundColor = thisIsland.bgColor;
     paintTarget.classList.add('claimed', 'seed', t);
   }
-
-  let x = paintableSquares(findPotentialPaints());
+  let x;
   paintAdjacents(findSeeds());
   for (let i = 0; i < iterations; i += 1) {
+    x = decideWhichSquaresToPaint(findPotentialPaints());
     growIsland(x, growthFactor);
-    x = paintableSquares(findPotentialPaints());
   }
+};
+export const runBenchmarks = (config) => {
+  const benchmarks = [];
+  const container = document.getElementById('container');
+  const results = document.getElementById('benchmarkResults');
+  results.textContent = 'running ...';
+  for (let i = 0; i < 10; i += 1) {
+    const t0 = performance.now();
+    seedIslands(config);
+    const t1 = performance.now();
+    benchmarks.push(t1 - t0);
+    while (container.firstChild) {
+      container.firstChild.remove();
+    }
+  }
+  seedIslands(config);
+  // console.log(splits);
+  splits.length = 0;
+  results.textContent =
+    benchmarks.reduce((a, b) => a + b) / benchmarks.length;
 };
